@@ -66,8 +66,6 @@ void initCloud() {
   OD01.println("MQTT started");
 }
 
-int lightOn = 0;
-int fanOn = 0;
 void loop() {
   uint16_t light = readLight();
   float temp = readTemperature();
@@ -79,33 +77,12 @@ void loop() {
     mqttConnect();
   }
 
-  if (lightOn == 0 && light < 30) {
-    String message = "{\"light\": true}";
-    OD01.println(message);
-    mqttClient->publish(device->getEventsTopic(), message);
-    lightOn = 1;
-  }
-  
-  if (lightOn == 1 && light > 100) {
-    String message = "{\"light\": false}";
-    OD01.println(message);
-    mqttClient->publish(device->getEventsTopic(), message);
-    lightOn = 0;
-  }
-  
-  if (fanOn == 0 && temp > 30) {
-    String message = "{\"fan\": true}";
-    OD01.println(message);
-    mqttClient->publish(device->getEventsTopic(), message);
-    fanOn = 1;
-  }
-  
-  if (fanOn == 1 && temp < 20) {
-    String message = "{\"fan\": false}";
-    OD01.println(message);
-    mqttClient->publish(device->getEventsTopic(), message);
-    fanOn = 0;
-  }
+  String message1 = "{\"light\": " + String(light) + "}";
+  mqttClient->publish(device->getEventsTopic(), message1);
+  delay(5000);
+  String message2 = "{\"temp\": " + String(temp) + "}";
+  mqttClient->publish(device->getEventsTopic(), message2);
+  OD01.println("Messages sent");
 
   SH01.poll();
   if (SH01.touchDetected()) {
@@ -121,7 +98,7 @@ void loop() {
       OD01.println(" C");
     }
   }
-  delay(1000);
+  delay(10000);
 }
 
 uint16_t readLight() {

@@ -1,0 +1,17 @@
+{
+	"Imports": {
+		"scope": "javascript",
+		"prefix": "func1",
+		"body": [
+			"\"use strict\";",
+            "const { google } = require(\"googleapis\");",
+            "const config = require(\"./config.js\");",
+            "",
+            "exports.relayCloudIot = function(event, callback) {",
+            "",
+            "};"
+		],
+		"description": "Imports"
+    },
+    
+}

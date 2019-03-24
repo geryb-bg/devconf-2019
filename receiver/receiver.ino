@@ -11,6 +11,9 @@
 
 #include "config.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+
 xOD01 OD01;
 xOC03 OC03;
 xSL06 SL06;
@@ -69,9 +72,10 @@ void initCloud() {
 void messageReceived(String &topic, String &payload) {
   OD01.println(".");
   OD01.println(payload);
-  if (payload == "ON") {
+  int i = atoi(payload.c_str());
+  if (i < 30) {
     OC03.write(HIGH);
-  } else {
+  } else if (i > 100) {
     OC03.write(LOW);
   }
 }

@@ -37,10 +37,8 @@
 9. `send12` - create jwt method
 10. `send13` - connect to MQTT
 11. `send14` - call connect from loop
-12. initialise:
-    - `int lightOn = 0;`
-    - `int fanOn = 0;`
-13. `send15` - send temp and light data in loop
+12. `send15` - send temp and light data in loop
+13. change delay to 10 secs
 
 # Receiver part 2
 
@@ -48,3 +46,8 @@
 2. `rec6` - message handler
 3. `rec7` - message received method
 4. `rec8` - listen for messages
+
+# Cloud function
+
+1. show config
+2. `func1` - init

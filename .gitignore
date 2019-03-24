@@ -1,3 +1,5 @@
 .DS_Store
 */config.h
 */.vscode/ipch/*
+
+**/node_modules/*
