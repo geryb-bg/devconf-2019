@@ -10,7 +10,7 @@ From the [XinaBox GitHub](https://github.com/xinabox):
 
 - arduino-CORE
 - arduino-OD01
-- arduino-SW02.h
+- arduino-SW02
 - arduino-SL06
 - arduino-SH01
 - arduino-OC03
