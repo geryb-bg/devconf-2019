@@ -50,4 +50,9 @@
 # Cloud function
 
 1. show config
-2. `func1` - init
+2. `func1` - Import
+3. `func2` - Init
+4. `func3` - Google auth
+5. `func4` - Device registry name
+6. `func5` - interpret data
+7. `func6` - Forward data to device

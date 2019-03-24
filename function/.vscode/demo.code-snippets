@@ -13,5 +13,74 @@
 		],
 		"description": "Imports"
     },
-    
+    "Init": {
+        "scope": "javascript",
+		"prefix": "func2",
+		"body": [
+            "console.log(event.data ? Buffer.from(event.data, \"base64\").toString() : \"nothing\");",
+            "",
+            "if (event.data) {",
+            "\tconst record = JSON.parse(Buffer.from(event.data, \"base64\").toString());",
+            "}"
+		],
+		"description": "Init"
+    },
+    "Google Auth": {
+        "scope": "javascript",
+		"prefix": "func3",
+		"body": [
+			"google.auth",
+            "\t.getClient()",
+            "\t.then(client => {",
+            "\t\tgoogle.options({",
+            "\t\t\tauth: client",
+            "\t\t});",
+            "",
+            "\t})",
+            "\t.then(result => {",
+            "\t\tconsole.log(result);",
+            "\t});"
+		],
+		"description": "Google Auth"
+    },
+    "Device registry name": {
+        "scope": "javascript",
+        "prefix": "func4",
+        "body": "const registryName = `projects/\\${config.projectId}/locations/\\${config.cloudRegion}/registries/\\${config.registryId}`;",
+        "description": "Device registry name"
+    },
+    "Interpret data": {
+        "scope": "javascript",
+        "prefix": "func5",
+        "body": [
+            "let binaryData, deviceName;",
+            "if (record.light) {",
+            "\tdeviceName = config.lightDeviceId;",
+            "\tbinaryData = Buffer.from(record.light.toString()).toString(\"base64\");",
+            "} else if (record.temp) {",
+            "\tdeviceName = config.fanDeviceId;",
+            "\tbinaryData = Buffer.from(record.temp.toString()).toString(\"base64\");",
+            "} else {",
+            "\tconsole.log(\"Something went wrong! There was no light or fan value!\");",
+            "\treturn null;",
+            "}"
+        ],
+        "description": "Interpret data"
+    },
+    "Forward data to device": {
+        "scope": "javascript",
+        "prefix": "func6",
+        "body": [
+            "const request = {",
+            "\tname: `\\${registryName}/devices/\\${deviceName}`,",
+            "\tversionToUpdate: 0,",
+            "\tbinaryData: binaryData",
+            "};",
+            "console.log(`Send data to \\${deviceName}`);",
+            "return google",
+            "\t.cloudiot(\"v1\")",
+            "\t.projects.locations.registries.devices.modifyCloudToDeviceConfig(request);",
+        ],
+        "description": "Forward data to device"
+    }
 }
