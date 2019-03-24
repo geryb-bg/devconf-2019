@@ -1,0 +1,232 @@
+{
+	"Import all libraries": {
+		"scope": "cpp",
+		"prefix": "send1",
+		"body": [
+			"#include <xCore.h>",
+            "#include <xVersion.h>",
+            "#include \"xOD01.h\"",
+            "#include <xSW02.h>",
+            "#include <xSL06.h>",
+            "#include <xSH01.h>",
+            "",
+            "xOD01 OD01;",
+            "xSW02 SW02;",
+            "xSL06 SL06;",
+            "xSH01 SH01;"
+		],
+		"description": "Import all libraries for sender device"
+	},
+	"Start all sensors": {
+        "scope": "cpp",
+        "prefix": "send2",
+        "body": [
+            "Wire.begin();",
+            "OD01.begin();",
+            "SW02.begin();",
+            "SL06.begin();",
+            "SL06.enableLightSensor(false);",
+            "SH01.begin();",
+            "",
+            "delay(5000);",
+            "OD01.println(\"Sensors ready!\");"
+        ],
+        "description": "Start all sensors"
+    },
+    "Detect touch": {
+        "scope": "cpp",
+        "prefix": "send3",
+        "body": [
+            "SH01.poll();",
+            "if (SH01.touchDetected()) {",
+            "\tif (SH01.circleTouched()) {",
+            "\t\t//print ambient light",
+            "\t} else if (SH01.squareTouched()) {",
+            "\t\t//print temp",
+            "\t}",
+            "}",
+            "delay(1000);"
+        ],
+        "description": "Gesture detection"
+    },
+    "Print values": {
+        "scope": "cpp",
+        "prefix": "send4",
+        "body": [
+            "OD01.print(\"$1: \");",
+            "OD01.print(read$1());",
+            "OD01.println(\" $2\");"
+        ],
+        "description": "Print values"
+    },
+    "Read Ambient Light": {
+        "scope": "cpp",
+        "prefix": "send5",
+        "body": [
+            "uint16_t readLight() {",
+            "\tuint16_t ambientLight = 0;",
+            "\tSL06.getAmbientLight(ambientLight);",
+            "\treturn ambientLight;",
+            "}"
+        ],
+        "description": "Read light method"
+    },
+    "Read Temperature": {
+        "scope": "cpp",
+        "prefix": "send6",
+        "body": [
+            "float readTemperature() {",
+            "\tSW02.poll();",
+            "\treturn SW02.getTempC();",
+            "}"
+        ],
+        "description": "Read temperature method"
+    },
+    "Include libraries": {
+        "scope": "cpp",
+        "prefix": "send7",
+        "body": [
+            "#include <WiFi.h>",
+            "#include <MQTT.h>",
+            "#include <CloudIoTCore.h>",
+            "#include <WiFiClientSecure.h>",
+            "",
+            "#include \"config.h\""
+        ],
+        "description": "Include libraries"
+    },
+    "Init vars": {
+        "scope": "cpp",
+        "prefix": "send8",
+        "body": [
+            "WiFiClientSecure *netClient;",
+            "MQTTClient *mqttClient;",
+            "CloudIoTCoreDevice *device;",
+            "unsigned long iss = 0;",
+            "String jwt;"
+        ],
+        "description": "Init vars"
+    },
+    "Initialise WiFi connection": {
+        "scope": "cpp",
+        "prefix": "send9",
+        "body": [
+            "void initWifi() {",
+            "\tOD01.println(\"Connecting to:\");",
+            "\tOD01.println(WIFI_SSID);",
+            "\tWiFi.begin(WIFI_SSID, WIFI_PASSWORD);",
+            "\twhile (WiFi.status() != WL_CONNECTED) {",
+            "\t\tOD01.println(\"Retry in 5 secs\");",
+            "\t\tWiFi.begin(WIFI_SSID, WIFI_PASSWORD);",
+            "\t\tdelay(5000);",
+            "\t}",
+            "\tOD01.println(\"Connected to WiFi\");",
+            "}"
+        ],
+        "description": "Initialise WiFi connection"
+    },
+    "Set time": {
+        "scope": "cpp",
+        "prefix": "send10",
+        "body": [
+            "void syncTime() {",
+            "\tconfigTime(0, 0, \"pool.ntp.org\", \"time.nist.gov\");",
+            "\twhile (time(nullptr) < 1510644967) {",
+            "\t\tdelay(10);",
+            "\t}",
+            "}"
+        ],
+        "description": "Set Time"
+    },
+    "Initialise cloud connection": {
+        "scope": "cpp",
+        "prefix": "send11",
+        "body": [
+            "void initCloud() {",
+            "\tdevice = new CloudIoTCoreDevice(project_id, location, registry_id, device_id, private_key_str);",
+            "\tnetClient = new WiFiClientSecure();",
+            "\tmqttClient = new MQTTClient(512);",
+            "\tmqttClient->begin(\"mqtt.googleapis.com\", 8883, *netClient);",
+            "\tOD01.println(\"MQTT started\");",
+            "}"
+        ],
+        "description": "Initialise cloud connection"
+    },
+    "create jwt method": {
+        "scope": "cpp",
+        "prefix": "send12",
+        "body": [
+            "String getJwt() {",
+            "\tif (iss == 0 || time(nullptr) - iss > 3600) {",
+            "\t\tiss = time(nullptr);",
+            "\t\tjwt = device->createJWT(iss);",
+            "\t}",
+            "\treturn jwt;",
+            "}"
+        ],
+        "description": "create jwt method"
+    },
+    "connect to MQTT": {
+        "scope": "cpp",
+        "prefix": "send13",
+        "body": [
+            "void mqttConnect() {",
+            "\twhile (!mqttClient->connect(device->getClientId().c_str(),",
+            "\t\t\t\"unused\", getJwt().c_str(), false)) {",
+            "\t\tdelay(1000);",
+            "\t}",
+            "\tOD01.println(\"Connected to MQTT\");",
+            "\tmqttClient->subscribe(device->getConfigTopic());",
+            "\tmqttClient->subscribe(device->getCommandsTopic());",
+            "}"
+        ],
+        "description": "connect to MQTT"
+    },
+    "call connect from loop": {
+        "scope": "cpp",
+        "prefix": "send14",
+        "body": [
+            "if (!mqttClient->connected()) {",
+            "\tif (WiFi.status() != WL_CONNECTED) {",
+            "\t\tinitWifi();",
+            "\t}",
+            "\tmqttConnect();",
+            "}"
+        ],
+        "description": "call connect from loop"
+    },
+    "send temp and light data in loop": {
+        "scope": "cpp",
+        "prefix": "send15",
+        "body": [
+            "if (lightOn == 0 && light < 30) {",
+            "\tString message = \"{\\\"light\\\": true}\";",
+            "\tOD01.println(message);",
+            "\tmqttClient->publish(device->getEventsTopic(), message);",
+            "\tlightOn = 1;",
+            "}",
+            "",
+            "if (lightOn == 1 && light > 100) {",
+            "\tString message = \"{\\\"light\\\": false}\";",
+            "\tOD01.println(message);",
+            "\tmqttClient->publish(device->getEventsTopic(), message);",
+            "\tlightOn = 0;",
+            "}",
+            "",
+            "if (fanOn == 0 && temp > 30) {",
+            "\tString message = \"{\\\"fan\\\": true}\";",
+            "\tOD01.println(message);",
+            "\tmqttClient->publish(device->getEventsTopic(), message);",
+            "\tfanOn = 1;",
+            "}",
+            "",
+            "if (fanOn == 1 && temp < 20) {",
+            "\tString message = \"{\\\"fan\\\": false}\";",
+            "\tOD01.println(message);",
+            "\tmqttClient->publish(device->getEventsTopic(), message);",
+            "\tfanOn = 0;",
+            "}"
+        ],
+        "description": "send temp and light data in loop"
+    }
+}
