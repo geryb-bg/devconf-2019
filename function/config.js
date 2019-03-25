@@ -3,5 +3,5 @@ module.exports = {
     cloudRegion: "europe-west1",
     registryId: "iot-registry",
     lightDeviceId: "xinabox-cw02-rec",
-    fanDeviceId: "xinabox-cw02-rec" //todo
+    fanDeviceId: "xinabox-cw02-fan"
 }
