@@ -187,13 +187,13 @@
     },
     "Message received method": {
         "scope": "cpp",
-        "prefix": "rec8",
+        "prefix": "rec7",
         "body": [
             "void messageReceived(String &topic, String &payload) {",
             "\tOD01.println(\".\");",
             "\tOD01.println(payload);",
             "\tint i = atoi(payload.c_str());",
-            "\tif (i < 30) {",
+            "\tif (i < 50) {",
             "\t\tOC03.write(HIGH);",
             "\t} else if (i > 100) {",
             "\t\tOC03.write(LOW);",
@@ -207,7 +207,8 @@
         "prefix": "rec8",
         "body": [
             "mqttClient->loop();",
-            "delay(10);"
+            "delay(10);",
+            "OD01.print(\".\");"
         ],
         "description": "Listen for messages loop"
     }

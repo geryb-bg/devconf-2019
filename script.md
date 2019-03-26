@@ -1,3 +1,13 @@
+# Receiver part 1
+
+1. `rec1` - Import and init
+2. `rec2` - setup (ProximityGain is how dirty the air is allowed to be)
+3. `rec3` - detect proximity
+4. `int isOn = 0;` - outside loop method
+5. `rec4` - turn on and off
+6. Check USB port and file name
+7. Upload
+
 # Sender part 1
 
 1. `send1` - Import and init
@@ -9,16 +19,6 @@
 7. `send6` - readTemperature
 8. Check USB port and file name
 9. Upload
-
-# Receiver part 1
-
-1. `rec1` - Import and init
-2. `rec2` - setup (ProximityGain is how dirty the air is allowed to be)
-3. `rec3` - detect proximity
-4. `int isOn = 0;` - outside loop method
-5. `rec4` - turn on and off
-6. Check USB port and file name
-7. Upload
 
 # Generating Elliptic Curve private/public key pairs
 

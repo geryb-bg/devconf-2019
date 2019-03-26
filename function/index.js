@@ -44,5 +44,4 @@ exports.relayCloudIot = function(event, callback) {
             });
     }
 };
-
 //gcloud functions deploy relayCloudIot --runtime nodejs8 --trigger-topic=iot-topic
