@@ -12,10 +12,10 @@
 
 #include "config.h"
 
-xOD01 OD01;
-xSW02 SW02;
-xSL06 SL06;
-xSH01 SH01;
+xOD01 screen;
+xSW02 tempSensor;
+xSL06 lightSensor;
+xSH01 touchSensor;
 
 WiFiClientSecure *netClient;
 MQTTClient *mqttClient;
@@ -24,31 +24,30 @@ unsigned long iss = 0;
 String jwt;
 
 void setup() {
-  Wire.begin();
-  OD01.begin();
-  SW02.begin();
-  SL06.begin();
-  SL06.enableLightSensor(false);
-  SH01.begin();
-  
-  delay(5000);
-  OD01.println("Sensors ready!");
+    Wire.begin();
+    screen.begin();
+    tempSensor.begin();
+    lightSensor.begin();
+    lightSensor.enableLightSensor(false);
+    touchSensor.begin();
+    
+    delay(5000);
+    screen.println("Sensors ready!");
 
-  initWifi();
-  syncTime();
-  initCloud();
+    initWifi();
+    syncTime();
 }
 
 void initWifi() {
-    OD01.println("Connecting to:");
-    OD01.println(WIFI_SSID);
+    screen.println("Connecting to:");
+    screen.println(WIFI_SSID);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
-        OD01.println("Retry in 5 secs");
+        screen.println("Retry in 5 secs");
         WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
         delay(5000);
     }
-    OD01.println("Connected to WiFi");
+    screen.println("Connected to WiFi");
 }
 
 void syncTime() {
@@ -63,53 +62,53 @@ void initCloud() {
     netClient = new WiFiClientSecure();
     mqttClient = new MQTTClient(512);
     mqttClient->begin("mqtt.googleapis.com", 8883, *netClient);
-    OD01.println("MQTT started");
+    screen.println("MQTT started");
 }
 
 void loop() {
-  uint16_t light = readLight();
-  float temp = readTemperature();
+    uint16_t light = readLight();
+    float temp = readTemperature();
 
-  if (!mqttClient->connected()) {
-      if (WiFi.status() != WL_CONNECTED) {
-          initWifi();
-      }
-      mqttConnect();
-  }
+    if (!mqttClient->connected()) {
+        if (WiFi.status() != WL_CONNECTED) {
+            initWifi();
+        }
+        mqttConnect();
+    }
 
-  String message1 = "{\"light\": " + String(light) + "}";
-  mqttClient->publish(device->getEventsTopic(), message1);
-  delay(5000);
-  String message2 = "{\"temp\": " + String(temp) + "}";
-  mqttClient->publish(device->getEventsTopic(), message2);
-  OD01.println("Messages sent");
+    String message1 = "{\"light\": " + String(light) + "}";
+    mqttClient->publish(device->getEventsTopic(), message1);
+    delay(5000);
+    String message2 = "{\"temp\": " + String(temp) + "}";
+    mqttClient->publish(device->getEventsTopic(), message2);
+    screen.println("Messages sent");
 
-  SH01.poll();
-  if (SH01.touchDetected()) {
-      if (SH01.circleTouched()) {
-          //print ambient light
-          OD01.print("Light: ");
-          OD01.print(light);
-          OD01.println(" LUX");
-      } else if (SH01.squareTouched()) {
-          //print temp
-          OD01.print("Temperature: ");
-          OD01.print(temp);
-          OD01.println(" C");
-      }
-  }
-  delay(10000);
+    touchSensor.poll();
+    if (touchSensor.touchDetected()) {
+        if (touchSensor.circleTouched()) {
+            //print ambient light
+            screen.print("Light: ");
+            screen.print(light);
+            screen.println(" LUX");
+        } else if (touchSensor.squareTouched()) {
+            //print temp
+            screen.print("Temperature: ");
+            screen.print(temp);
+            screen.println(" C");
+        }
+    }
+    delay(5000);
 }
 
 uint16_t readLight() {
     uint16_t ambientLight = 0;
-    SL06.getAmbientLight(ambientLight);
+    lightSensor.getAmbientLight(ambientLight);
     return ambientLight;
 }
 
 float readTemperature() {
-    SW02.poll();
-    return SW02.getTempC();
+    tempSensor.poll();
+    return tempSensor.getTempC();
 }
 
 void mqttConnect() {
@@ -117,7 +116,7 @@ void mqttConnect() {
             "unused", getJwt().c_str(), false)) {
         delay(1000);
     }
-    OD01.println("Connected to MQTT");
+    screen.println("Connected to MQTT");
     mqttClient->subscribe(device->getConfigTopic());
     mqttClient->subscribe(device->getCommandsTopic());
 }

@@ -14,7 +14,7 @@ exports.relayCloudIot = function(event, callback) {
                 google.options({
                     auth: client
                 });
-                
+        
                 const registryName = `projects/${config.projectId}/locations/${config.cloudRegion}/registries/${config.registryId}`;
 
                 let binaryData, deviceName;
@@ -43,5 +43,9 @@ exports.relayCloudIot = function(event, callback) {
                 console.log(result);
             });
     }
+
 };
-//gcloud functions deploy relayCloudIot --runtime nodejs8 --trigger-topic=iot-topic
+
+//gcloud functions deploy relayCloudIot 
+//       --runtime nodejs8 
+//       --trigger-topic=iot-topic

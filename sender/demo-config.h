@@ -1,7 +1,9 @@
 //Generate private key
-//openssl ecparam -genkey -name prime256v1 -noout -out my_private_key.pem
+//openssl ecparam -genkey -name prime256v1 
+//                -noout -out my_private_key.pem
 //Generate public key
-//openssl ec -in my_private_key.pem -pubout -out my_public_key.pem
+//openssl ec -in my_private_key.pem -pubout 
+//           -out my_public_key.pem
 
 #define WIFI_SSID "My_WiFi_Name"
 #define WIFI_PASSWORD "My_WiFi_Password"
@@ -17,7 +19,8 @@ const char *private_key_str =
     "00:00:00:00:00:00:00:00:00:00:00:00:00:00:00:"
     "00:00";
 
-//openssl s_client -showcerts -connect mqtt.googleapis.com:8883
+//openssl s_client -showcerts 
+//        -connect mqtt.googleapis.com:8883
 const char *root_cert =
     "-----BEGIN CERTIFICATE-----\n"
     "MIIEXDCCA0SgAwIBAgINAeOpMBz8cgY4P5pTHTANBgkqhkiG9w0BAQsFADBMMSAw\n"

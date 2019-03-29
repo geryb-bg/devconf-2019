@@ -13,9 +13,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-xOD01 OD01;
-xOC03 OC03;
-xSL06 SL06;
+xOD01 screen;
+xOC03 relay;
+xSL06 lightSensor;
 
 WiFiClientSecure *netClient;
 MQTTClient *mqttClient;
@@ -25,14 +25,14 @@ String jwt;
 
 void setup() {
     Wire.begin();
-    OD01.begin();
-    OC03.begin();
-    SL06.begin();
-    SL06.setProximityGain(PGAIN_2X);
-    SL06.enableProximitySensor(false);
+    screen.begin();
+    relay.begin();
+    lightSensor.begin();
+    lightSensor.setProximityGain(PGAIN_2X);
+    lightSensor.enableProximitySensor(false);
 
     delay(5000);
-    OD01.println("Sensors ready!");
+    screen.println("Sensors ready!");
 
     initWifi();
     syncTime();
@@ -40,16 +40,16 @@ void setup() {
 }
 
 void initWifi() {
-    OD01.println("Connecting to:");
-    OD01.println(WIFI_SSID);
+    screen.println("Connecting to:");
+    screen.println(WIFI_SSID);
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     while (WiFi.status() != WL_CONNECTED) {
-        OD01.println("Retry in 5 secs");
+        screen.println("Retry in 5 secs");
         WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
         delay(5000);
     }
 
-    OD01.println("Connected to WiFi");
+    screen.println("Connected to WiFi");
 }
 
 void syncTime() {
@@ -65,17 +65,17 @@ void initCloud() {
     mqttClient = new MQTTClient(512);
     mqttClient->begin("mqtt.googleapis.com", 8883, *netClient);
     mqttClient->onMessage(messageReceived);
-    OD01.println("MQTT started");
+    screen.println("MQTT started");
 }
 
 void messageReceived(String &topic, String &payload) {
-    OD01.println(".");
-    OD01.println(payload);
+    screen.println(".");
+    screen.println(payload);
     int i = atoi(payload.c_str());
     if (i < 50) {
-        OC03.write(HIGH);
+        relay.write(HIGH);
     } else if (i > 100) {
-        OC03.write(LOW);
+        relay.write(LOW);
     }
 }
 
@@ -83,8 +83,8 @@ int isOn = 0;
 void loop() {
     mqttClient->loop();
     delay(10);
-    OD01.print(".");
-
+    screen.print(".");
+    
     if (!mqttClient->connected()) {
         if (WiFi.status() != WL_CONNECTED) {
             initWifi();
@@ -93,16 +93,16 @@ void loop() {
     }
 
     uint8_t proximity = 0;
-    SL06.getProximity(proximity);
+    lightSensor.getProximity(proximity);
     if (proximity > 100) {
         //detected something close
         if (isOn == 0) {
-            OD01.println("ON!");
-            OC03.write(HIGH);
+            screen.println("ON!");
+            relay.write(HIGH);
             isOn = 1;
         } else {
-            OD01.println("OFF!");
-            OC03.write(LOW);
+            screen.println("OFF!");
+            relay.write(LOW);
             isOn = 0;
         }
     }
@@ -113,7 +113,7 @@ void mqttConnect() {
     while (!mqttClient->connect(device->getClientId().c_str(), "unused", getJwt().c_str(), false)) {
         delay(1000);
     }
-    OD01.println("Connected to MQTT");
+    screen.println("Connected to MQTT");
     mqttClient->subscribe(device->getConfigTopic());
     mqttClient->subscribe(device->getCommandsTopic());
 }

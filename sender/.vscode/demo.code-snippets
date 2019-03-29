@@ -10,10 +10,10 @@
             "#include <xSL06.h>",
             "#include <xSH01.h>",
             "",
-            "xOD01 OD01;",
-            "xSW02 SW02;",
-            "xSL06 SL06;",
-            "xSH01 SH01;"
+            "xOD01 screen;",
+            "xSW02 tempSensor;",
+            "xSL06 lightSensor;",
+            "xSH01 touchSensor;"
 		],
 		"description": "Import all libraries for sender device"
 	},
@@ -22,14 +22,14 @@
         "prefix": "send2",
         "body": [
             "Wire.begin();",
-            "OD01.begin();",
-            "SW02.begin();",
-            "SL06.begin();",
-            "SL06.enableLightSensor(false);",
-            "SH01.begin();",
+            "screen.begin();",
+            "tempSensor.begin();",
+            "lightSensor.begin();",
+            "lightSensor.enableLightSensor(false);",
+            "touchSensor.begin();",
             "",
             "delay(5000);",
-            "OD01.println(\"Sensors ready!\");"
+            "screen.println(\"Sensors ready!\");"
         ],
         "description": "Start all sensors"
     },
@@ -37,11 +37,11 @@
         "scope": "cpp",
         "prefix": "send3",
         "body": [
-            "SH01.poll();",
-            "if (SH01.touchDetected()) {",
-            "\tif (SH01.circleTouched()) {",
+            "touchSensor.poll();",
+            "if (touchSensor.touchDetected()) {",
+            "\tif (touchSensor.circleTouched()) {",
             "\t\t//print ambient light",
-            "\t} else if (SH01.squareTouched()) {",
+            "\t} else if (touchSensor.squareTouched()) {",
             "\t\t//print temp",
             "\t}",
             "}",
@@ -53,9 +53,9 @@
         "scope": "cpp",
         "prefix": "send4",
         "body": [
-            "OD01.print(\"$1: \");",
-            "OD01.print(read$1());",
-            "OD01.println(\" $2\");"
+            "screen.print(\"$1: \");",
+            "screen.print(read$1());",
+            "screen.println(\" $2\");"
         ],
         "description": "Print values"
     },
@@ -65,7 +65,7 @@
         "body": [
             "uint16_t readLight() {",
             "\tuint16_t ambientLight = 0;",
-            "\tSL06.getAmbientLight(ambientLight);",
+            "\tlightSensor.getAmbientLight(ambientLight);",
             "\treturn ambientLight;",
             "}"
         ],
@@ -76,8 +76,8 @@
         "prefix": "send6",
         "body": [
             "float readTemperature() {",
-            "\tSW02.poll();",
-            "\treturn SW02.getTempC();",
+            "\ttempSensor.poll();",
+            "\treturn tempSensor.getTempC();",
             "}"
         ],
         "description": "Read temperature method"
@@ -112,15 +112,15 @@
         "prefix": "send9",
         "body": [
             "void initWifi() {",
-            "\tOD01.println(\"Connecting to:\");",
-            "\tOD01.println(WIFI_SSID);",
+            "\tscreen.println(\"Connecting to:\");",
+            "\tscreen.println(WIFI_SSID);",
             "\tWiFi.begin(WIFI_SSID, WIFI_PASSWORD);",
             "\twhile (WiFi.status() != WL_CONNECTED) {",
-            "\t\tOD01.println(\"Retry in 5 secs\");",
+            "\t\tscreen.println(\"Retry in 5 secs\");",
             "\t\tWiFi.begin(WIFI_SSID, WIFI_PASSWORD);",
             "\t\tdelay(5000);",
             "\t}",
-            "\tOD01.println(\"Connected to WiFi\");",
+            "\tscreen.println(\"Connected to WiFi\");",
             "}"
         ],
         "description": "Initialise WiFi connection"
@@ -147,7 +147,7 @@
             "\tnetClient = new WiFiClientSecure();",
             "\tmqttClient = new MQTTClient(512);",
             "\tmqttClient->begin(\"mqtt.googleapis.com\", 8883, *netClient);",
-            "\tOD01.println(\"MQTT started\");",
+            "\tscreen.println(\"MQTT started\");",
             "}"
         ],
         "description": "Initialise cloud connection"
@@ -175,7 +175,7 @@
             "\t\t\t\"unused\", getJwt().c_str(), false)) {",
             "\t\tdelay(1000);",
             "\t}",
-            "\tOD01.println(\"Connected to MQTT\");",
+            "\tscreen.println(\"Connected to MQTT\");",
             "\tmqttClient->subscribe(device->getConfigTopic());",
             "\tmqttClient->subscribe(device->getCommandsTopic());",
             "}"
@@ -204,7 +204,7 @@
             "delay(5000);",
             "String message2 = \"{\\\"temp\\\": \" + String(temp) + \"}\";",
             "mqttClient->publish(device->getEventsTopic(), message2);",
-            "OD01.println(\"Messages sent\");"
+            "screen.println(\"Messages sent\");"
         ],
         "description": "send temp and light data in loop"
     }
